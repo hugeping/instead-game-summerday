@@ -109,6 +109,12 @@ room {
 	}:attr'scenery';
 }
 
+obj {
+	-"телевизор";
+	['before_Push,Pull,Take'] = 'Телевизор слишком тяжёлый.';
+	found_in = 'livingroom';
+}:attr 'static,switchable'
+
 room {
 	-"гостиная";
 	nam = 'livingroom';
