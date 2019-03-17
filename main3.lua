@@ -1,4 +1,7 @@
---$Name:Крысы$
+--$Name:Летний день$
+--$Author:Пётр Косых$
+--$Info:Игра для Инстедоз-6$
+
 require "fmt"
 fmt.dash = true
 fmt.quotes = true
@@ -109,6 +112,7 @@ room {
 room {
 	-"гостиная";
 	nam = 'livingroom';
+	dsc = [[Гостиная кажется тебе огромной.]];
 }: with {
 	obj {
 		-"спальня,спальная";
