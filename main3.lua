@@ -112,13 +112,35 @@ room {
 obj {
 	-"телевизор";
 	['before_Push,Pull,Take'] = 'Телевизор слишком тяжёлый.';
+	description = function(s)
+		if s:has'on' then
+			p [[По телевизору идут новости. Скучно.]]
+		else
+			p [[Черно-белый телевизор с красивым названием "Берёзка".]];
+			return false
+		end
+	end;
 	found_in = 'livingroom';
 }:attr 'static,switchable'
 
+obj {
+	-"зеркало";
+	description = [[Зеркало стоит в углу комнаты. Оно очень большое и старинное. Ты любишь разглядывать в нём своё отражение и отражение гостиной.
+Просто удивительно, что там всё наоборот. Почему лево и право меняется местами, а верх и низ -- нет?]];
+	found_in = 'livingroom';
+}:attr 'static';
+
+obj {
+	-"диван";
+	description = [[Повидавший многое на своём веку диван стоит у стены напротив телевизора. Его пружины совсем ослабли, но он стал от этого ещё мягче.]];
+	found_in = 'livingroom';
+}:attr 'static,supporter,enterable'
+
 room {
 	-"гостиная";
+	title = 'гостиная';
 	nam = 'livingroom';
-	dsc = [[Гостиная кажется тебе огромной.]];
+	dsc = [[Гостиная кажется тебе огромной. Ты можешь пройти в спальню или коридор.]];
 }: with {
 	obj {
 		-"спальня,спальная";
@@ -129,5 +151,28 @@ room {
 		-"коридор";
 		['before_Walk,Enter'] = function(s) walk "corridor"; end;
 		before_Default = [[Ты можешь пойти в коридор.]];
+	}:attr'scenery';
+}
+
+room {
+	-"коридор";
+	title = 'коридор';
+	nam = 'corridor';
+	dsc = [[Из узкого коридора можно попасть в гостиную, кухню и комнату дедушки.]];
+}: with {
+	obj {
+		-"гостиная";
+		['before_Walk,Enter'] = function(s) walk "livingroom"; end;
+		before_Default = [[Ты можешь пойти в гостиную.]];
+	}:attr'scenery';
+	obj {
+		-"комната дедушки,комната";
+		['before_Walk,Enter'] = function(s) walk "grandroom"; end;
+		before_Default = [[Ты можешь пойти в комнату дедушки.]];
+	}:attr'scenery';
+	obj {
+		-"кухня";
+		['before_Walk,Enter'] = function(s) walk "kitchenroom"; end;
+		before_Default = [[Ты можешь пойти на кухню.]];
 	}:attr'scenery';
 }
