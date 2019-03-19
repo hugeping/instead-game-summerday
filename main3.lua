@@ -320,7 +320,7 @@ obj {
 		description = "Среди них наверняка есть с яйцом и луком -- твои любимые!";
 		before_Smell = [[Как пахнет!]];
 		['before_Touch,Take,Push,Pull,Transfer,Taste'] = [[Лучше попросить у бабушки.]];
-	};
+	}:attr'edible';
 }
 
 room {
