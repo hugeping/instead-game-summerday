@@ -300,6 +300,11 @@ Verb {
 -- пирожок толстому мальчику за фонарик.
 -- ключ -> сарай -> пила?
 
+declare 'make_p' (function()
+		return obj {
+			-"пирожок";
+		}:attr'edible'
+		 end)
 obj {
 	-"бабушка";
 	found_in = 'kitchenroom';
@@ -308,6 +313,7 @@ obj {
 	dsc = [[Ты видишь как бабушка делает пирожки.]];
 	['before_Talk,Say,Ask,Tell'] = function(s)
 		p [[-- Держи пирожок!]];
+		take(new (make_p))
 	end;
 }:attr'animated'
 
