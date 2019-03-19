@@ -260,12 +260,18 @@ room {
 	-"кухня";
 	nam = 'kitchenroom';
 	title = 'Кухня';
-	dsc = [[Бабушка на кухне печёт пирожки.]];
+	dsc = [[На кухне пахнет свежими пирожками. Ты можешь пройти в коридор, туалет или выйти на улицу.]];
+	out_to = 'street';
 }:with {
 	obj {
 		-"коридор";
 		['before_Walk,Enter'] = function(s) walk "corridor"; end;
 		before_Default = [[Ты можешь пойти в коридор.]];
+	}:attr'scenery';
+	obj {
+		-"улица";
+		['before_Walk,Enter'] = function(s) walk "street"; end;
+		before_Default = [[Ты можешь пойти на улицу.]];
 	}:attr'scenery';
 	'window';
 }
