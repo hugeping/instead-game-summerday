@@ -69,6 +69,8 @@ room {
 	nam = 'bedroom';
 	title = 'спальня';
 	out_to = 'livingroom';
+	Smell = [[Ты чувствуешь запах свежей сдобы.]];
+	Listen = [[Ты слышишь чириканье воробьёв за окном.]];
 	onexit = function(s)
 		if _'clothes':hasnt 'worn' then
 			p [[Тебе стоит надеть свою одежду.]]
@@ -141,6 +143,36 @@ obj {
 }:attr 'static,supporter,enterable'
 
 obj {
+	nam = 'clock';
+	-"часы|маятник";
+	num = 1;
+	description = [[Старинные часы висят рядом с входом в коридор. Ты любишь смотреть, как равномерно качается маятник и слушать
+гулкий бой, который разносится по дому каждый час.]];
+	found_in = 'livingroom';
+	before_Exam = function(s)
+		if s:once() then
+			DaemonStart 'clock'
+		end
+		return false
+	end;
+	daemon = function(s)
+		s.num = s.num + 1
+		if s.num > 3 then
+			if not here() ^ 'livingroom' then
+				p [[Ты слышишь, как из гостиной доносится бой часов.]]
+			else
+				p [[Ты слышишь, как часы начинают бить.]]
+			end
+			p (fmt.em([[^Бам! Бам! Бам! Бам! Бам! Бам! Бам! Бам! Бам! ...]]))
+			s:daemonStop()
+		end
+	end;
+	before_Default = function(s, ev)
+		p ("Лучше оставить ", s:it 'вн', " в покое.")
+	end;
+}:attr 'static';
+
+obj {
 	-"окно|окна|свет";
 	nam = 'window';
 	description = [[Сквозь окно льётся свет летнего утра.]];
@@ -151,6 +183,8 @@ room {
 	-"гостиная";
 	title = 'гостиная';
 	nam = 'livingroom';
+	Smell = [[Ты чувствуешь запах пирожков.]];
+	Listen = [[Ты слышишь звуки летнего утра.]];
 	dsc = [[Гостиная кажется тебе огромной. Ты можешь пройти в спальню или коридор.]];
 }: with {
 	obj {
@@ -170,6 +204,7 @@ room {
 	-"коридор";
 	title = 'коридор';
 	nam = 'corridor';
+	Smell = [[Ты чувствуешь запах пирожков из кухни.]];
 	dsc = [[Из узкого коридора можно попасть в гостиную, кухню и комнату дедушки.]];
 }: with {
 	obj {
@@ -236,6 +271,8 @@ obj {
 room {
 	-"комната дедушки,комната";
 	nam = 'grandroom';
+	Smell = [[Ты чувствуешь запах пирожков.]];
+	Listen = [[Ты слышишь чириканье воробьёв, доносящееся из окна.]];
 	title = 'Комната дедушки';
 	dsc = [[Дедушки в комнате нет. Наверное, он ушёл на рыбалку.]];
 	out_to = 'corridor';
@@ -253,14 +290,51 @@ room {
 		before_Default = [[Ты можешь пойти в коридор.]];
 	}:attr'scenery';
 	'window';
-}
+	}
 
+Verb {
+	"сходи/ть";
+	"в {noun}/вн,enterable : Walk";
+}
+-- идеи:
+-- пирожок толстому мальчику за фонарик.
+-- ключ -> сарай -> пила?
+
+obj {
+	-"бабушка";
+	found_in = 'kitchenroom';
+	description = [[Бабушка делает пирожки. Это их запах заполняет весь дом.]];
+	before_Kiss = [[-- Осторожно, внучик, мука!]];
+	dsc = [[Ты видишь как бабушка делает пирожки.]];
+	['before_Talk,Say,Ask,Tell'] = function(s)
+		p [[-- Держи пирожок!]];
+	end;
+}:attr'animated'
+
+obj {
+	-"стол";
+	found_in = 'kitchenroom'
+}:attr'scenery,supporter':with {
+	obj {
+		-"пирожки|пирожок";
+		description = "Среди них наверняка есть с яйцом и луком -- твои любимые!";
+		before_Smell = [[Как пахнет!]];
+		['before_Touch,Take,Push,Pull,Transfer,Taste'] = [[Лучше попросить у бабушки.]];
+	};
+}
 
 room {
 	-"кухня";
 	nam = 'kitchenroom';
+	Smell = [[Ты чувствуешь, как восхитительно пахнут пирожки.]];
 	title = 'Кухня';
-	dsc = [[На кухне пахнет свежими пирожками. Ты можешь пройти в коридор, туалет или выйти на улицу.]];
+	dsc = function(s)
+		if s:once() then
+			p [[-- Доброе утро, внучик! -- приветствует тебя бабушка. Ты видишь перед ней на столе ряды свежеиспечённых пирожков.]]
+			pn "^"
+		end
+		p [[На кухне пахнет свежими пирожками. Ты можешь пройти в коридор, туалет или выйти на улицу.]];
+	end;
 	out_to = 'street';
 }:with {
 	obj {
@@ -273,5 +347,34 @@ room {
 		['before_Walk,Enter'] = function(s) walk "street"; end;
 		before_Default = [[Ты можешь пойти на улицу.]];
 	}:attr'scenery';
+	obj {
+		-"туалет";
+		['before_Walk,Enter'] = function(s)
+			if s:once() then
+				p [[Ты воспользовался туалетом.]]
+			else
+				p [[Ты уже был в туалете.]]
+			end
+		end;
+		before_Default = [[Ты можешь сходить в туалет, если хочешь.]];
+	}:attr'scenery';
 	'window';
+}
+
+room {
+	-"улица";
+	nam = 'street';
+	title = "На улице";
+	dsc = [[Ты стоишь на улице возле своего дома. Отсюда ты можешь пойти на футбольное поле
+или во двор.]];
+	in_to = 'house';
+}: with {
+	obj {
+		nam = 'house';
+		description = [[Одноэтажный кирпичный домик окрашенный в белый цвет. Он кажется тебе самым уютным домом на свете.]];
+		-"дом|дверь";
+		['before_Enter,Climb'] = function()
+			walk 'kitchenroom'
+		end;
+	}:attr'scenery';
 }
