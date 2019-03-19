@@ -27,6 +27,10 @@ Careful = Class {
 	end;
 }:attr 'scenery'
 
+Furniture = Class {
+	['before_Push,Pull,Transfer'] = "Пусть лучше стоит там, где стоит.";
+}:attr 'static'
+
 room {
 	-"сон";
 	nam = 'main';
@@ -111,7 +115,7 @@ room {
 
 obj {
 	-"телевизор";
-	['before_Push,Pull,Take'] = 'Телевизор слишком тяжёлый.';
+	['before_Push,Pull,Take,Transfer'] = 'Телевизор слишком тяжёлый.';
 	description = function(s)
 		if s:has'on' then
 			p [[По телевизору идут новости. Скучно.]]
@@ -136,6 +140,13 @@ obj {
 	found_in = 'livingroom';
 }:attr 'static,supporter,enterable'
 
+obj {
+	-"окно|окна|свет";
+	nam = 'window';
+	description = [[Сквозь окно льётся свет летнего утра.]];
+	before_Open = [[Всё и так хорошо. Может быть просто выйти погулять?]];
+}:attr 'scenery,openable';
+
 room {
 	-"гостиная";
 	title = 'гостиная';
@@ -152,6 +163,7 @@ room {
 		['before_Walk,Enter'] = function(s) walk "corridor"; end;
 		before_Default = [[Ты можешь пойти в коридор.]];
 	}:attr'scenery';
+	'window';
 }
 
 room {
@@ -175,4 +187,85 @@ room {
 		['before_Walk,Enter'] = function(s) walk "kitchenroom"; end;
 		before_Default = [[Ты можешь пойти на кухню.]];
 	}:attr'scenery';
+}
+
+Furniture {
+	nam = 'ironbed';
+	-"железная кровать,кровать";
+	found_in = 'grandroom';
+	description = [[Железная кровать дедушки хорошо пружинит. На ней очень здорово прыгать.]];
+}:attr 'supporter,enterable';
+
+Furniture {
+	nam = 'table';
+	-"стол";
+	found_in = 'grandroom';
+	description = [[Дедушкин стол занимает правую половину комнаты. Он очень старый. В столе есть выдвижной ящик.]];
+	['before_Enter,Climb'] = [[Не стоит испытывать стол на прочность.]];
+}:attr 'supporter';
+
+Verb {
+	"[вы|за]двин/уть",
+	"{noun}/вн,openable : Pull"
+}
+
+Verb {
+	"[вы|за]двин/уть",
+	"{noun}/вн,openable : Push"
+}
+
+obj {
+	nam = 'tablebox';
+	-"ящик";
+	found_in = 'grandroom';
+	before_Transfer = function(s)
+		if s:has'open' then
+			mp:xaction("Close", s)
+		else
+			mp:xaction("Open", s)
+		end
+	end;
+	before_Pull = function(s) mp:xaction("Open", s) end;
+	before_Push = function(s) mp:xaction("Close", s) end;
+	after_Open = [[Ты выдвинул ящик стола.]];
+	after_Close = [[Ты задвинул ящик стола.]];
+	when_open = [[Ящик стола выдвинут.]];
+	when_closed = [[Ящик стола задвинут.]];
+}:attr'scenery,openable,container';
+
+room {
+	-"комната дедушки,комната";
+	nam = 'grandroom';
+	title = 'Комната дедушки';
+	dsc = [[Дедушки в комнате нет. Наверное, он ушёл на рыбалку.]];
+	out_to = 'corridor';
+	['before_Jump,JumpOver'] = function(s)
+		if pl:inside'ironbed' then
+			p [[Ты подпрыгиваешь на пружинной кровати. Раз, два, три! Ух, как здорово! К самому потолку!]];
+		else
+			p [[На дедушкиной пружинной кровати очень здорово прыгать. Но сначала, нужно на неё залезть.]]
+		end
+	end;
+}: with {
+	obj {
+		-"коридор";
+		['before_Walk,Enter'] = function(s) walk "corridor"; end;
+		before_Default = [[Ты можешь пойти в коридор.]];
+	}:attr'scenery';
+	'window';
+}
+
+
+room {
+	-"кухня";
+	nam = 'kitchenroom';
+	title = 'Кухня';
+	dsc = [[Бабушка на кухне печёт пирожки.]];
+}:with {
+	obj {
+		-"коридор";
+		['before_Walk,Enter'] = function(s) walk "corridor"; end;
+		before_Default = [[Ты можешь пойти в коридор.]];
+	}:attr'scenery';
+	'window';
 }
