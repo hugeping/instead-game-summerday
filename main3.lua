@@ -1,4 +1,4 @@
---$Name:Летний день$
+--$Name:Один день лета$
 --$Author:Пётр Косых$
 --$Info:Игра для Инстедоз-6$
 
@@ -8,12 +8,24 @@ fmt.quotes = true
 
 loadmod 'mp-ru'
 
-pl.description = [[Тебя зовут Серёжа и тебе 9 лет.]];
+pl.description = [[Тебя зовут Серёжа и тебе 8 лет.]];
 
 Verb {
 	"просыпаться,просыпайся";
 	"Wake";
 }
+
+Path = Class {
+	['before_Walk,Enter'] = function(s) walk (s.walk_to) end;
+	before_Default = function(s)
+		if s.desc then
+			p(s.desc)
+			return
+		end
+		p ([[Ты можешь пойти в ]], std.ref(s.walk_to):noun('вн'), '.');
+	end;
+	default_Event = 'Walk';
+}:attr'scenery';
 
 Prop = Class {
 	before_Default = function(s, ev)
@@ -108,11 +120,11 @@ room {
 		before_Exam = [[Интересно, сколько лет этой сосне?]];
 		before_Default = [[Сосна находится за окном.]]
 	}:attr 'scenery';
-	obj {
+	Path {
 		-"гостиная";
-		['before_Walk,Enter'] = function(s) walk "livingroom"; end;
-		before_Default = [[Ты можешь пойти в гостиную.]];
-	}:attr'scenery';
+		walk_to = 'livingroom';
+		desc = [[Ты можешь пойти в гостиную.]];
+	};
 }
 
 obj {
@@ -184,19 +196,17 @@ room {
 	title = 'гостиная';
 	nam = 'livingroom';
 	Smell = [[Ты чувствуешь запах пирожков.]];
-	Listen = [[Ты слышишь звуки летнего утра.]];
+	Listen = [[Ты слышишь ход часов.]];
 	dsc = [[Гостиная кажется тебе огромной. Ты можешь пройти в спальню или коридор.]];
 }: with {
-	obj {
+	Path {
 		-"спальня,спальная";
-		['before_Walk,Enter'] = function(s) walk "bedroom"; end;
-		before_Default = [[Ты можешь пойти в спальню.]];
-	}:attr'scenery';
-	obj {
+		walk_to = 'bedroom';
+	};
+	Path {
 		-"коридор";
-		['before_Walk,Enter'] = function(s) walk "corridor"; end;
-		before_Default = [[Ты можешь пойти в коридор.]];
-	}:attr'scenery';
+		walk_to = 'corridor';
+	};
 	'window';
 }
 
@@ -207,21 +217,19 @@ room {
 	Smell = [[Ты чувствуешь запах пирожков из кухни.]];
 	dsc = [[Из узкого коридора можно попасть в гостиную, кухню и комнату дедушки.]];
 }: with {
-	obj {
+	Path {
 		-"гостиная";
-		['before_Walk,Enter'] = function(s) walk "livingroom"; end;
-		before_Default = [[Ты можешь пойти в гостиную.]];
-	}:attr'scenery';
-	obj {
+		walk_to = 'livingroom'
+	};
+	Path {
 		-"комната дедушки,комната";
-		['before_Walk,Enter'] = function(s) walk "grandroom"; end;
-		before_Default = [[Ты можешь пойти в комнату дедушки.]];
-	}:attr'scenery';
-	obj {
+		walk_to = 'grandroom';
+	};
+	Path {
 		-"кухня";
-		['before_Walk,Enter'] = function(s) walk "kitchenroom"; end;
-		before_Default = [[Ты можешь пойти на кухню.]];
-	}:attr'scenery';
+		walk_to = 'kitchenroom';
+		desc = [[Ты можешь пойти на кухню.]];
+	};
 }
 
 Furniture {
@@ -230,6 +238,16 @@ Furniture {
 	found_in = 'grandroom';
 	description = [[Железная кровать дедушки хорошо пружинит. На ней очень здорово прыгать.]];
 }:attr 'supporter,enterable';
+
+obj {
+	nam = 'news';
+	-"газета|Правда";
+	found_in = 'table';
+	description = [[Газета "Правда" за 15 мая 1986 года.
+Ты заметил, что название одной из статей выделено красной ручкой.
+^^Выступление М. С. Горбачева по советскому телевидению.^^
+"Добрый вечер, товарищи! Все вы знаете, недавно нас постигла беда - авария на Чернобыльской атомной электростанции... Она больно затронула советских людей, взволновала международную общественность. Мы впервые реально столкнулись с такой грозной силой, какой является ядерная энергия, вышедшая из-под контроля."^^Что это значит?]];
+}
 
 Furniture {
 	nam = 'table';
@@ -245,8 +263,26 @@ Verb {
 }
 
 Verb {
-	"[вы|за]двин/уть",
+	"задви/нуть",
 	"{noun}/вн,openable : Push"
+}
+Verb {
+	"выдви/нуть",
+	"{noun}/вн,openable : Pull"
+}
+
+obj {
+	nam = 'key';
+	-"ключ";
+	found_in = 'tablebox';
+	description = "Это небольшой ключик, который уже начал ржаветь.";
+}
+
+obj {
+	nam = 'wire';
+	-"скрепка,проволока";
+	found_in = 'tablebox';
+	description = "Обычная канцелярская скрепка из хорошей, тугой проволоки.";
 }
 
 obj {
@@ -262,7 +298,7 @@ obj {
 	end;
 	before_Pull = function(s) mp:xaction("Open", s) end;
 	before_Push = function(s) mp:xaction("Close", s) end;
-	after_Open = [[Ты выдвинул ящик стола.]];
+	after_Open = function(s) p [[Ты выдвинул ящик стола.]]; mp:content(s) end;
 	after_Close = [[Ты задвинул ящик стола.]];
 	when_open = [[Ящик стола выдвинут.]];
 	when_closed = [[Ящик стола задвинут.]];
@@ -284,13 +320,12 @@ room {
 		end
 	end;
 }: with {
-	obj {
+	Path {
 		-"коридор";
-		['before_Walk,Enter'] = function(s) walk "corridor"; end;
-		before_Default = [[Ты можешь пойти в коридор.]];
-	}:attr'scenery';
+		walk_to = 'corridor';
+	};
 	'window';
-	}
+}
 
 Verb {
 	"сходи/ть";
@@ -302,6 +337,7 @@ Verb {
 -- ключ -> сарай -> лук из удочки бамбука.
 -- стрела -- рейка + целофан + огонь.
 -- скрепка -> отмычка
+-- в туалете - флакон от шампуня.
 -- компас -> просто дают
 -- спички нужны
 -- враги: паук(огонь), крыса(лук)
@@ -349,16 +385,15 @@ room {
 	end;
 	out_to = 'street';
 }:with {
-	obj {
+	Path {
 		-"коридор";
-		['before_Walk,Enter'] = function(s) walk "corridor"; end;
-		before_Default = [[Ты можешь пойти в коридор.]];
-	}:attr'scenery';
-	obj {
+		walk_to = 'corridor';
+	};
+	Path {
 		-"улица";
-		['before_Walk,Enter'] = function(s) walk "street"; end;
-		before_Default = [[Ты можешь пойти на улицу.]];
-	}:attr'scenery';
+		walk_to = 'street';
+		desc = [[Ты можешь пойти на улицу.]];
+	};
 	obj {
 		-"туалет";
 		['before_Walk,Enter'] = function(s)
@@ -373,11 +408,46 @@ room {
 	'window';
 }
 
+obj {
+	-"сарай";
+	dsc = [[Напротив дома расположен сарай.]];
+	description = function(s)
+		p [[В сарае дедушка хранит разный интересный хлам.]]
+		if s:hasnt'open' then
+			p [[Сейчас сарай закрыт.]]
+		else
+			p [[Сейчас сарай открыт.]]
+		end
+	end;
+	with_key = 'key';
+	after_Unlock = function(s) s:attr'open' p [[Ты открыл сарай с помощью ключа.]] end;
+	after_Lock = function(s) s:attr'~open' p [[Ты запер сарай на ключ.]] end;
+	before_Unlock = function(s, w)
+		if w ^ 'wire' then
+			p [[У дедушки есть ключ. Нет смысла взламывать сарай.]];
+			return
+		end
+		return false
+	end;
+	found_in = 'street';
+	['before_Enter,Climb'] = function(s)
+		walk 'warehouse'
+	end;
+}:attr 'static,enterable,openable,lockable,locked';
+
+obj {
+	-"цветы|клумбы";
+	found_in = 'street';
+	description = [[Ты не разбираешься в цветах, но они очень красивые и хорошо пахнут.]];
+	before_Take = [[Зачем зря рвать цветы?]];
+}:attr'scenery';
+
 room {
 	-"улица";
 	nam = 'street';
 	title = "На улице";
-	dsc = [[Ты стоишь на улице возле своего дома. Отсюда ты можешь пойти на футбольное поле
+	Smell = [[Запах цветов кружит тебе голову.]];
+	dsc = [[Ты стоишь на улице возле своего дома, утопающего в цветах. Отсюда ты можешь пойти на футбольное поле
 или во двор.]];
 	in_to = 'house';
 }: with {
@@ -389,4 +459,107 @@ room {
 			walk 'kitchenroom'
 		end;
 	}:attr'scenery';
+	Path {
+		-"футбольное поле|поле";
+		walk_to = 'field';
+		desc = [[Ты можешь пойти на футбольное поле.]];
+	};
+}
+
+function mp:CutSaw(w, wh)
+	if not wh and not have'saw' then
+		p [[Тебе не чем пилить.]]
+		return
+	end
+	if not wh then wh = _'saw' end
+	if not have(wh) then
+		p ([[Сначала нужно взять ]], wh:noun'вн', ".")
+		return
+	end
+	if wh ~= _'saw' then
+		p ([[Пилить ]], wh:noun 'тв', " не получится.")
+		return
+	end
+	if w == wh or w == me() then
+		p [[Интересно, как это получится?]];
+		return
+	end
+	if mp:check_live(w) then
+		return
+	end
+	p ([[У тебя не получилось запилить ]], w:noun'вн', " ", wh:noun'тв',".");
+end
+
+Verb {
+	"[|рас|вы|за|от]пили/ть,[|рас|вы|за|от]пилю";
+	"{noun}/вн : CutSaw";
+	"{noun}/вн {noun}/тв,held : CutSaw";
+}
+
+obj {
+	-"удочка";
+	nam = 'bow';
+	description = [[Старая удочка из гибкого бамбука. Здорово гнётся!]];
+	found_in = 'junk';
+}:disable();
+
+obj {
+	-"лобзик";
+	nam = 'saw';
+	description = [[Лобзик для выпиливания по дереву. Ещё почти не ржавый!]];
+	found_in = 'junk';
+}:disable();
+
+obj {
+	-"хлам";
+	nam = 'junk';
+	before_Take = [[Ты можешь поискать в хламе что-нибудь интересное.]];
+	description = function(s)
+		if not disabled'saw' and _'saw':inside(s) or
+		not disabled'bow' and _'bow':inside(s) then
+			mp:content(s)
+		else
+			p [[Тут, наверное, много всего интересного, если поискать.]];
+		end
+	end;
+	['before_Search,LookUnder'] = function(s)
+		if disabled'bow' then
+			p [[Ты покопался в хламе и нашёл старую удочку.]];
+			enable'bow'
+		elseif disabled'saw' then
+			p [[Ты покопался в хламе и нашёл лобзик.]];
+			enable'saw'
+		else
+			p [[Вроде больше ничего интересного не находится.]];
+		end
+	end;
+	found_in = 'warehouse';
+}:attr'scenery,container,open':dict {
+	["хлам/пр,2"] = "хламе";
+};
+
+room {
+	-"сарай";
+	title = "сарай";
+	nam = 'warehouse';
+	dsc = [[Сарай завален разным интересным хламом. Ты можешь выйти из сарая на улицу.]];
+	Smell = [[Пахнет резиной и бензином.]];
+	out_to = 'street';
+}: with {
+	Path {
+		-"улица";
+		walk_to = 'street';
+		descr = [[Ты можешь пойти на улицу.]];
+	};
+}
+
+room {
+	-"поле";
+	title = "футбольное поле";
+}: with {
+	Path {
+		-"дом";
+		walk_to = 'street';
+		descr = [[Ты можешь пойти к своему дому.]];
+	}
 }
