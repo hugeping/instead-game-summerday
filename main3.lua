@@ -28,7 +28,7 @@ function mp:pre_input(str)
 	if #a <= 1 or #a > 3 then
 		return str
 	end
-	if a[1] == 'в' or a[1] == 'на' or a[1] == 'во' then
+	if a[1] == 'в' or a[1] == 'на' or a[1] == 'во' or a[1] == "к" or a[1] == 'ко' then
 		return "идти "..str
 	end
 	return str
@@ -513,6 +513,10 @@ function mp:CutSaw(w, wh)
 		p ([[Сначала нужно взять ]], wh:noun'вн', ".")
 		return
 	end
+	if not have(w) then
+		p ([[Сначала нужно взять ]], w:noun'вн', ".")
+		return
+	end
 	if wh ~= _'saw' then
 		p ([[Пилить ]], wh:noun 'тв', " не получится.")
 		return
@@ -524,6 +528,11 @@ function mp:CutSaw(w, wh)
 	if mp:check_live(w) then
 		return
 	end
+	return false
+end
+
+function mp:after_CutSaw(w, wh)
+	if not wh then wh = _'saw' end
 	p ([[У тебя не получилось запилить ]], w:noun'вн', " ", wh:noun'тв',".");
 end
 
@@ -534,10 +543,33 @@ Verb {
 }
 
 obj {
-	-"удочка";
+	function(s)
+		if s.short then
+			pr (-"кусок удочки,кусок|")
+		end
+		pr (-"удочка")
+		if s.short then
+			pr (-"|удилище|заготовка|палка")
+		end
+	end;
 	nam = 'bow';
-	description = [[Старая удочка из гибкого и крепкого бамбука. Здорово гнётся!]];
+	short = false;
+	description = function(s)
+		if s.short then
+			p [[Это отличная заготовка для лука!]];
+			return
+		end
+		p [[Старая удочка из гибкого и крепкого бамбука. Здорово гнётся!]];
+	end;
 	found_in = 'junk';
+	after_CutSaw = function(s)
+		if s.short then
+			p [[Больше пилить не нужно.]]
+			return
+		end
+		p [[Ты отпилил от удочки кусок удилища. Получилась хорошая заготовка для лука!]]
+		s.short = true
+	end;
 }:disable();
 
 obj {
@@ -670,6 +702,7 @@ room {
 	['up_to,out_to'] = 'houses';
 	dark_dsc = [[Ты спустился в подвал и оказался в полной темноте. Ты можешь уйти из подвала.]];
 	Listen = [[Ты слышишь какой-то шорох и жалобное мяуканье.]];
+	Smell = [[Здесь воняет.]];
 }:attr '~light';
 
 obj {
