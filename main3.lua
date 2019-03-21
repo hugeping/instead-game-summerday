@@ -65,7 +65,7 @@ Careful = Class {
 }:attr 'scenery'
 
 Furniture = Class {
-	['before_Push,Pull,Transfer'] = "Пусть лучше стоит там, где стоит.";
+	['before_Push,Pull,Transfer,Take'] = "Пусть лучше стоит там, где {#if_hint/#first,plural,стоят,стоит}.";
 }:attr 'static'
 
 room {
@@ -175,7 +175,7 @@ obj {
 	found_in = 'livingroom';
 }:attr 'static';
 
-obj {
+Furniture {
 	-"диван";
 	description = [[Повидавший многое на своём веку диван стоит у стены напротив телевизора. Его пружины совсем ослабли, но он стал от этого ещё мягче.]];
 	found_in = 'livingroom';
