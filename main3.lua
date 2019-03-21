@@ -7,7 +7,6 @@ fmt.dash = true
 fmt.quotes = true
 
 loadmod 'mp-ru'
-
 pl.description = [[Тебя зовут Серёжа и тебе 8 лет.]];
 
 Verb {
@@ -21,9 +20,37 @@ Verb {
 	"~ к {noun}/дт,scene,enterable: Walk";
 	"~ на|в {noun}/вн,scene,enterable: Walk";
 }
+
+function game:before_Exam(w)
+	return game:before_Walk(w)
+end
+
+function game:before_Walk(w)
+	if have 'compass' then
+		return false
+	end
+	local dir = mp:compass_dir(w)
+	if not dir then
+		return false
+	end
+	if dir == 'd_to' or dir == 'u_to' or dir == 'in_to' or dir == 'out_to' then
+		return false
+	end
+	p [[Как ориентироваться по сторонам света без компаса? Ты думаешь, что играешь в текстовую приключенческую игру?]]
+end
+
+obj {
+	-"компас";
+	nam = 'compass';
+	description = [[Компас в жёлтом пластиковом корпусе. Тебе купил его дедушка, когда вы гуляли по центру города. У него фосфорная стрелка, её видно в темноте!]];
+}
+
 obj {
 	nam = '$dir';
 	act = function(s, to)
+		if not have 'compass' then
+			return ''
+		end
 		return ' (на '..to..')'
 	end;
 }
@@ -119,7 +146,7 @@ room {
 		if not pl:inside'bed' then
 			return false
 		end
-		if ev == 'Exam' or ev == 'Exit' or ev == 'Walk' or ev == 'GetOff' then
+		if ev == 'Look' or ev == 'Exam' or ev == 'Exit' or ev == 'Walk' or ev == 'GetOff' then
 			return false
 		end
 		p [[Сначала надо слезть с кровати.]]
@@ -177,8 +204,19 @@ obj {
 
 Furniture {
 	-"диван";
-	description = [[Повидавший многое на своём веку диван стоит у стены напротив телевизора. Его пружины совсем ослабли, но он стал от этого ещё мягче.]];
+	found = false;
+	description = [[Повидавший многое на своём веку диван стоит у стены напротив телевизора. Его пружины совсем ослабли, но он стал от этого ещё мягче. В щели между обивкой и ручками постоянно проваливаются разные предметы.]];
 	found_in = 'livingroom';
+	before_Search = function(s)
+		if s.found then
+			p [[Больше ничего интересного не находится.]]
+			return
+		end
+		s.found = true
+		p [[Ты запустил руку внутрь дивана и пошарил в надежде найти что-нибудь интересное.
+Скоро, твоя рука нащупала какой-то небольшой предмет. Ты достал из дивана компас!]];
+		take 'compass'
+	end;
 }:attr 'static,supporter,enterable'
 
 obj {
@@ -226,7 +264,7 @@ room {
 	e_to = '#bedroom';
 	Smell = [[Ты чувствуешь запах пирожков.]];
 	Listen = [[Ты слышишь ход часов.]];
-	dsc = [[Гостиная кажется тебе огромной. Ты можешь пройти в спальню{$dir|восток} или коридор {$dir|запад}.]];
+	dsc = [[Гостиная кажется тебе огромной. Ты можешь пройти в спальню{$dir|восток} или коридор{$dir|запад}.]];
 }: with {
 	Path {
 		-"спальня,спальная";
