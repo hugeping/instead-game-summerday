@@ -663,12 +663,23 @@ obj {
 }:attr'animated'
 
 
+room {
+	nam = 'dark';
+	title = "В подвале";
+	-"подвал";
+	['up_to,out_to'] = 'houses';
+	dark_dsc = [[Ты спустился в подвал и оказался в полной темноте. Ты можешь уйти из подвала.]];
+	Listen = [[Ты слышишь какой-то шорох и жалобное мяуканье.]];
+}:attr '~light';
 
 obj {
 	-"подвал";
 	nam = 'underground';
 	with_key = 'wire';
 	found_in = 'houses';
+	['before_Enter,Climb'] = function(s)
+		walk 'dark';
+	end;
 	description = function(s)
 		if s:has'locked' then
 			p [[Подвал закрыт на замок.]]
@@ -726,7 +737,7 @@ room {
 	nam = 'houses';
 	-"двор";
 	title = 'Во дворе пятиэтажки';
-	in_to = 'underground';
+	['d_to,in_to'] = 'underground';
 	out_to = 'street';
 	before_Listen = function(s, wh)
 		if _'underground':hasnt'locked' or wh == _'underground' then
