@@ -585,7 +585,7 @@ function mp:CutSaw(w, wh)
 		p ([[Сначала нужно взять ]], wh:noun'вн', ".")
 		return
 	end
-	if not have(w) then
+	if not have(w) and w ^ 'bow' then
 		p ([[Сначала нужно взять ]], w:noun'вн', ".")
 		return
 	end
@@ -787,7 +787,7 @@ obj {
 
 obj {
 	-"ребята";
-	found_in = 'houses';
+	nam = 'boys';
 	before_Default = "Здесь есть Света, Максим и Руслан.";
 	dsc = [[Ребята стоят у входа в подвал.]];
 };
@@ -795,7 +795,6 @@ obj {
 obj {
 	-"Света|девочка";
 	nam = 'girl';
-	found_in = 'houses';
 	talk_to = function(s)
 		if _'underground':hasnt'locked' then
 			p [[-- Какой ты молодец! Ты спасёшь Мурзика? Правда?]]
@@ -809,8 +808,7 @@ obj {
 
 obj {
 	-"Руслан";
-	nam = 'serge';
-	found_in = 'houses';
+	nam = 'ruslan';
 	talk_to = function(s)
 		if _'underground':hasnt'locked' then
 			p [[-- Ух ты! Обычной скрепкой! Но в подвале темно. Кстати, Ромке отец подарил охотничьи спички. Я его видел недавно, он шел на футбольное поле.]]
@@ -826,7 +824,6 @@ obj {
 obj {
 	-"Макс,Максим";
 	nam = 'max';
-	found_in = 'houses';
 	talk_to = function(s)
 		if _'underground':hasnt'locked' then
 			p [[-- В подвале темно и страшно! Я бы не рискнул спуститься туда.]]
@@ -838,6 +835,51 @@ obj {
 	['before_Kiss,Touch,Taste,Smell'] = "У тебя нет такого желания.";
 }:attr'animate'
 
+obj {
+	nam = 'rope';
+	-"верёвка,тетива";
+	description = "Тонкая, но крепкая капроновая верёвка.";
+	['before_Cut,CutSaw,Tear'] = "Длина верёвки тебя устраивает.";
+}
+
+obj {
+	nam = 'ropes';
+	-"бельё|столбы";
+	description = "Обычное дело. Бельё сушится на натянутых между столбами верёвках.";
+	before_Take = "Тебя не интересует чужое бельё. К тому же, за это могут и навалять.";
+}:attr 'concealed':with {
+	obj {
+		-"верёвка|верёвки";
+		description = function(s)
+			if s.cut then
+				p "Все верёвки заняты."
+			else
+				p "Одна из верёвок не занята.";
+			end
+		end;
+		cut = false;
+		before_Take = "У тебя не выходит развязать узлы.";
+		before_Receive = "Не стоит этого делать.";
+		['before_Attack,Tear'] = "Крепкая.";
+		before_Cut = function(s, w)
+			if not w and have 'saw' or w == _'saw' then
+				mp:xaction("CutSaw", s)
+				return
+			end
+			return false
+		end;
+		after_CutSaw = function(s)
+			if s:once() then
+				p [[Ты отпилил кусок верёвки при помощи лобзика.]]
+				take 'rope'
+				mp.first_it = _'rope'
+				s.cut = true
+			else
+				p [[Ты уже раздобыл верёвку.]]
+			end
+		end;
+	}:attr'scenery,supporter'
+}
 
 room {
 	nam = 'dark';
@@ -907,8 +949,8 @@ obj {
 			return false
 		end;
 	}:attr'scenery';
-
 }
+
 
 room {
 	nam = 'houses';
@@ -939,8 +981,10 @@ room {
 			pn [[Ты заметил Свету, Руслана и Макса. Они о чём-то спорят.]];
 		end
 		p [[Ты можешь уйти к своему дому{$dir|юг}.]];
+		p [[Во дворе сушится бельё.]]
 	end;
 }: with {
+	'ropes', 'boys', 'girl', 'max', 'ruslan',
 	Path {
 		-"дом";
 		nam = '#street';
