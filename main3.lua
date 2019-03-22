@@ -113,7 +113,16 @@ obj {
 	nam = 'arrow';
 	matches = false;
 	fire = false;
+	dirty = false;
 	-"стрела|рейка";
+	each_turn = function(s)
+		if s.fire and player_moved() and not here() ^ 'dark3' and not here() ^ 'dark4' then
+			p [[Стрела, наконец, погасла.]]
+			s.dirty = true
+			s.fire = false
+			s.matches = false
+		end
+	end;
 	after_Burn = function(s)
 		if s.fire then
 			p [[Уже горит!]]
@@ -136,7 +145,7 @@ obj {
 			p [[К её наконечнику привязаны охотничьи спички.]]
 			return
 		end
-		if visited 'goodend1' then
+		if visited 'goodend1' or s.dirty then
 			p [[Наконечник немного обуглился.]]
 			return
 		end
