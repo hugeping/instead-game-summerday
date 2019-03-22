@@ -246,14 +246,26 @@ obj {
 obj {
 	nam = 'wires';
 	-"нитки|моток ниток";
+	found_in = 'mirror';
 	description = "Моток белых ниток. Незаменимая вещь, когда надо что-нибудь к чему-нибудь привязать.";
+}:disable()
+
+Verb {
+	"примота/ть",
+	"~ {noun}/вн,held к {noun}/дт,held : Tie",
+	"~ к {noun}/дт,held {noun}/вн,held : Tie reverse",
 }
 
 obj {
 	-"зеркало";
+	nam = 'mirror';
 	description = function(s)
 		p [[Зеркало стоит в углу комнаты. Оно очень большое и старинное. Ты любишь разглядывать в нём своё отражение и отражение гостиной.
 Просто удивительно, что там всё наоборот. Почему лево и право меняется местами, а верх и низ -- нет?]];
+		if disabled 'wires' then
+			p [[^^Ты заметил на зеркале моток ниток.]]
+			enable 'wires';
+		end
 	end;
 	found_in = 'livingroom';
 }:attr 'static,supporter';
@@ -818,7 +830,7 @@ obj {
 	nam = 'matches';
 	before_Exam = [[Мечта любого мальчишки. Горят в любых условиях.]];
 	before_Tie = function(s, w)
-		_'match'.before_Tie(s, w)
+		return _'match'.before_Tie(s, w)
 	end;
 }: with {
 	obj {
