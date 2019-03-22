@@ -111,9 +111,35 @@ room {
 
 obj {
 	nam = 'arrow';
+	matches = false;
+	fire = false;
 	-"стрела|рейка";
+	after_Burn = function(s)
+		if s.fire then
+			p [[Уже горит!]]
+			return
+		end
+		if not s.matches then
+			p [[Интересная мысль, но пламя со стрелы собьет поток набегающего воздуха.]]
+			return
+		end
+		p [[Ты поджигаешь спички на конце стрелы и они вспыхивают, одна за другой, ярким голубоватым пламенем.]];
+		s.fire = true
+	end;
 	description = function(s)
 		p [[Стрела из деревянной рейки, которую ты смастерил для своего лука.]]
+		if s.fire then
+			p [[Её наконечник пылает огнём!]]
+			return
+		end
+		if s.matches then
+			p [[К её наконечнику привязаны охотничьи спички.]]
+			return
+		end
+		if visited 'goodend1' then
+			p [[Наконечник немного обуглился.]]
+			return
+		end
 		if not have 'bow2' then
 			p [[Жаль только что лук сломался,
 когда Руслан проверял его на прочность.]];
@@ -218,11 +244,19 @@ obj {
 }:attr 'static,switchable'
 
 obj {
+	nam = 'wires';
+	-"нитки|моток ниток";
+	description = "Моток белых ниток. Незаменимая вещь, когда надо что-нибудь к чему-нибудь привязать.";
+}
+
+obj {
 	-"зеркало";
-	description = [[Зеркало стоит в углу комнаты. Оно очень большое и старинное. Ты любишь разглядывать в нём своё отражение и отражение гостиной.
+	description = function(s)
+		p [[Зеркало стоит в углу комнаты. Оно очень большое и старинное. Ты любишь разглядывать в нём своё отражение и отражение гостиной.
 Просто удивительно, что там всё наоборот. Почему лево и право меняется местами, а верх и низ -- нет?]];
+	end;
 	found_in = 'livingroom';
-}:attr 'static';
+}:attr 'static,supporter';
 
 Furniture {
 	-"диван";
@@ -350,6 +384,7 @@ obj {
 Ты заметил, что название одной из статей выделено красной ручкой.
 ^^Выступление М. С. Горбачева по советскому телевидению.^^
 "Добрый вечер, товарищи! Все вы знаете, недавно нас постигла беда - авария на Чернобыльской атомной электростанции... Она больно затронула советских людей, взволновала международную общественность. Мы впервые реально столкнулись с такой грозной силой, какой является ядерная энергия, вышедшая из-под контроля."^^Что это значит?]];
+	before_Take = [[Не стоит забирать дедушкину газету.]];
 }
 
 Furniture {
@@ -448,6 +483,14 @@ Verb {
 -- враги: паук(огонь), крыса(лук)
 
 global 'pie_nr' (0)
+
+function pl:before_LetGo(s, w)
+	if mp:thedark() then
+		p [[Не стоит. В темноте не найти потом будет.]]
+	else
+		return false
+	end
+end
 
 obj {
 	nam = 'pie';
@@ -555,6 +598,14 @@ obj {
 	end;
 	found_in = 'street';
 	['before_Enter,Climb'] = function(s)
+		if s:hasnt'open' then
+			if s:has'locked' then
+				p [[Сарай заперт на ключ.]]
+			else
+				p [[Сарай закрыт.]]
+			end
+			return
+		end
 		walk 'warehouse'
 	end;
 }:attr 'static,enterable,openable,lockable,locked';
@@ -751,6 +802,14 @@ function mp:Burn(w, wh)
 end
 
 function mp:after_Burn(w, wh)
+	if w == _'match' or w == _'matches' then
+		p [[Ты зажёг одну из спичек. Она горела долго, около 20 секунд.]]
+		if here() ^ 'dark' or here() ^ 'dark2' then
+			p [[Ты успел рассмотреть и запомнить всё вокруг.]]
+			here():attr'light'
+		end
+		return
+	end
 	p (mp.msg.Burn.BURN)
 end
 
@@ -758,12 +817,39 @@ obj {
 	-"охотничьи спички,спички";
 	nam = 'matches';
 	before_Exam = [[Мечта любого мальчишки. Горят в любых условиях.]];
+	before_Tie = function(s, w)
+		_'match'.before_Tie(s, w)
+	end;
 }: with {
 	obj {
 		nam = 'match';
 		-"спичка";
 		before_Default = [[Теперь ты можешь что-нибудь поджечь.]];
 		before_Exam = [[Мечта любого мальчишки. Горят в любых условиях.]];
+		before_Burn = function(s) return false end;
+		before_Tie = function(s, w)
+			if not w ^ 'arrow' then
+				return false
+			end
+			if w.fire then
+				p [[Стрела уже горит!]]
+				return
+			end
+			if not have 'wires' and not have 'rope' then
+				p ([[Тебе не чем примотать ]], s:noun'вн', ".")
+				return
+			end
+			if not have 'wires' then
+				p [[Верёвка слишком толстая для этого.]]
+				return
+			end
+			if w.matches then
+				p [[Ты примотал к стреле ещё одну спичку.]]
+			else
+				p [[Ты примотал к наконечнику стрелы четыре охотничьих спички.]]
+				w.matches = true
+			end
+		end;
 	}
 }
 
@@ -1005,15 +1091,348 @@ obj {
 	}:attr'scenery,supporter'
 }
 
+local function u_listen()
+	_'dark':daemon(true)
+end
+
 room {
 	nam = 'dark';
 	title = "В подвале";
 	-"подвал";
 	['u_to,out_to'] = 'houses';
-	dark_dsc = [[Ты спустился в подвал и оказался в полной темноте. Ты можешь уйти из подвала.]];
-	before_Listen = [[Ты слышишь какой-то шорох и жалобное мяуканье.]];
+	n_to = 'dark2';
+	n_seen = false;
+	before_Listen = u_listen;
+	dsc = function(s)
+		p [[Когда ты зажигал спичку, ты заметил проход.]]
+		if have 'compass' or s.n_seen then
+			p [[Он расположен в северной стороне.]]
+			s.n_seen = true
+		else
+			p [[Но без компаса в темноте сложно ориентироваться.]]
+		end
+	end;
+	dark_dsc = [[Здесь темно. Ты можешь уйти из подвала.]];
+	daemon = function(s, force)
+		if visited 'goodend1' then
+			p [[Ты слышишь шорохи.]]
+			return
+		end
+		if here() ^ 'dark3' then
+			if disabled 'dark_door' then
+				p [[Ты слышишь жалобное мяуканье.]]
+			end
+			return
+		end
+		if here() ^ 'dark4' then
+			p [[Ты слышишь жалобное мяуканье Мурзика.]]
+			return
+		end
+		local t = {
+			"Ты слышишь жалобное мяуканье.";
+			"Ты слышишь странные шорохи.";
+			"Тебе кажется, что в подвале кто-то есть.";
+			"Тебе кажется, что кто-то стоит за твоей спиной.";
+			"Из глубины подвала доносится шелест.";
+		}
+		if force or rnd(100) < 20 then
+			p(t[rnd(#t)])
+		end
+	end;
+	enter = function(s, f)
+		s:attr '~light'
+		if f ^ 'houses' then
+			p [[Ты спустился в подвал и оказался в полной темноте.]]
+			if not visited 'goodend1' then
+				s:daemonStart()
+			end
+		end
+	end;
+	exit = function(s, t)
+		if t ^ 'houses' then
+			s:daemonStop()
+		end
+	end;
 	Smell = [[Здесь воняет.]];
 }:attr '~light';
+
+room {
+	nam = 'dark2';
+	title = "Развилка";
+	-"подвал";
+	['out_to'] = 'dark';
+	s_to = 'dark';
+	n_to = 'dark_n';
+	w_to = 'dark_w';
+	n_seen = false;
+	before_Listen = u_listen;
+	dsc = function(s)
+		p [[Когда ты зажигал спичку, ты заметил два прохода.]]
+		if have 'compass' or s.n_seen then
+			p [[Они расположены на севере и на западе.]]
+			s.n_seen = true
+		else
+			p [[Но без компаса в темноте сложно ориентироваться.]]
+		end
+	end;
+	dark_dsc = [[Здесь темно.]];
+	enter = function(s, f)
+		s:attr '~light'
+	end;
+	Smell = [[Здесь воняет.]];
+}
+
+obj {
+	-"окно|окна";
+	['before_Enter,Climb'] = "Слишком узко даже для тебя.";
+	description = "Сквозь узкие прорези окон сюда проникает свет с улицы. Ты ему очень рад.";
+	found_in = { 'dark_n', 'dark_w', 'dark3', 'dark4' };
+}:attr'scenery';
+
+obj {
+	nam = 'box';
+	-"ящик|коробка";
+	init_dsc = function(s)
+		p [[В дальнем углу помещения стоит деревянный ящик.]];
+		mp:content(s)
+	end;
+	['before_Exam,Listen,Fire'] = function() return false end;
+	description = [[Деревянный ящик зелёного цвета.]];
+	before_Default = function(s)
+		if seen 'rat' then
+			p [[Крыса не дает тебе подойти к ящику.]];
+		else
+			return false
+		end
+	end;
+	obj = { 'cat' };
+}:attr 'static,supporter';
+
+obj {
+	nam = 'cat';
+	-"котёнок|Мурзик";
+	['before_Exam,Listen,Fire'] = function() return false end;
+	description = function(s)
+		if seen 'rat' then
+			p[[Мурзик такой маленький по сравнению с этой злой тварью.]];
+		else
+			p [[Мурзик, он спасён!]]
+		end
+	end;
+	['before_Touch,Kiss'] = function()
+		if seen 'rat' then
+			p [[Пока рядом находится эта тварь, ты не можешь обнять котёнка.]];
+		else
+			p [[Милый Мурзик!]];
+		end
+	end;
+	before_Take = function(s)
+		if seen 'rat' then
+			p [[Как ты себе это представляешь, когда рядом находится крыса?]]
+			return
+		end
+		p [[Ты забрал Мурзика.]]
+		take(s)
+	end;
+	before_Default = function(s)
+		if seen 'rat' then
+			p [[Пока рядом находится эта тварь, ты ничего не можешь сделать.]];
+		else
+			return false
+		end
+	end;
+	init_dsc = [[На ящике сидит котёнок и жалобно мяукает.]]
+}:attr 'animate':dict {
+	["Мурзик/мр,од,ед,С"] = {
+		"Мурзик/им";
+		"Мурзика/вн";
+		"Мурзика/рд";
+		"Мурзиком/тв";
+		"Мурзике/пр";
+		"Мурзику/дт";
+	};
+}
+
+obj {
+	nam = 'rat';
+	-"крыса|тварь";
+	description = [[Ты никогда не видел таких огромных крыс. К счастью, она не обращает на тебя внимания.]];
+	['before_Exam,Listen,Fire'] = function() return false; end;
+	before_Default = [[Эта тварь опасная. Лучше с голыми руками к ней не приближаться.]];
+	init_dsc = [[Прямо под ящиком ты видишь огромную крысу, которая встала на задние лапы, пытаясь достать до Мурзика.]];
+}:attr 'animate';
+
+global 'target' (false)
+
+cutscene {
+	nam = 'badend1';
+	title = "конец";
+	text = function(s)
+		if s.__num == 1 then
+			pn ([[Ты выстрелил в ]], target:noun'вн', ".");
+			if target ^ 'rat' then
+				p [[Деревянная стрела не причинила крысе никакого вреда и не напугала её.]]
+			end
+			pn ("Крыса обернулась. Её маленькие и злые красные глазки полыхнули в полумраке. А потом она бросилась на тебя.")
+			pn ("^{$fmt em|Но всё могло закончиться по-другому...}");
+		end
+	end;
+	next_to = 'dark4';
+}
+
+cutscene {
+	nam = 'goodend1';
+	title = false;
+	text = [[Ты натягиваешь тетиву лука до упора и посылаешь пылающую стрелу в крысу.^^
+Стрела врезается в тварь и обдаёт её снопом искр.^^
+Крыса подпрыгивает, вертится волчком и скрывается в дверном проёме.]];
+	next_to = 'dark4';
+}
+
+room {
+	nam = 'dark4';
+	-"подвал|помещение";
+	title = 'Квадратное помещение';
+	out_to = 'dark_door';
+	onexit = function(s, w)
+		if _'arrow'.fire and seen 'rat' then
+			p [[Ты не для того пришёл сюда, чтобы просто уйти.]]
+			return false
+		end
+		return
+	end;
+	before_Listen = u_listen;
+	after_Fire = function(s, w)
+		if not seen 'rat' then
+			return false
+		end
+		if not w ^ 'rat' or not _'arrow'.fire then
+			target = w;
+			walk 'badend1';
+			return
+		end
+		drop 'arrow'
+		_'arrow'.fire = false
+		_'arrow'.matches = false
+		remove 'rat'
+		DaemonStop 'dark'
+		walk 'goodend1'
+	end;
+	w_to = 'dark_door';
+	dsc = function(s)
+		p [[Ты находишься в подвальном помещении в котором есть узкое окно на улицу.]];
+		if have 'compass' then
+			p [[Выход находится на западе.]]
+		end
+	end;
+}:with {
+	'dark_door',
+	'box', 'rat'
+}
+
+room {
+	nam = 'dark_n';
+	-"подвал|помещение";
+	title = 'Квадратное помещение';
+	out_to = 'dark2';
+	before_Listen = u_listen;
+	s_to = 'dark2';
+	dsc = function(s)
+		p [[Ты находишься в подвальном помещении в котором есть узкое окно на улицу.]];
+		if have 'compass' then
+			p [[Выход находится на юге.]]
+		end
+	end;
+}
+
+room {
+	nam = 'dark_w';
+	-"подвал|помещение";
+	title = 'Поворот';
+	out_to = 'dark2';
+	before_Listen = u_listen;
+	e_to = 'dark2';
+	n_to = 'dark3';
+	dsc = function()
+		p [[Ты находишься в проходном подвальном помещении, в котором есть узкое окно на улицу.]];
+		if have 'compass' then
+			p [[Ты можешь пройти на восток и север.]]
+		end
+	end;
+}
+
+obj {
+	nam = 'real_key';
+}
+
+room {
+	nam = 'dark3';
+	-"подвал|коридор";
+	title = 'Помещения';
+	out_to = 'dark_w';
+	in_to = function(s)
+		if not disabled 'dark_door' then return 'dark_door' end
+		return false
+	end;
+	s_to = 'dark_w';
+	e_to = 'dark_door';
+	before_Listen = function(s)
+		if s:once() then
+			p [[Ты прошёлся вдоль коридора прислушиваясь к жалобному мяуканию и нашёл дверь из-за которого оно доносилось.]]
+			enable'dark_door'
+		else
+			if not visited 'goodend1' then
+				p [[Ты и так уже знаешь, за какой дверью находится Мурзик.]]
+			else
+				p [[Тихо, только какой-то странный шорох.]]
+			end
+		end
+	end;
+	dsc = function()
+		p [[Ты находишься в длинном коридоре с одной стороны которого есть узкие окна на улицу, а с другой -- множество проходов в подвальные помещения. ]];
+		if have 'compass' then
+			p [[Ты можешь пройти на юг.]]
+		end
+	end;
+}:with {
+	obj {
+		-"проходы|помещения";
+		before_Default = [[Их очень много и они закрыты. Нужно как-то понять, в каком из них находится Мурзик.]];
+	}:attr 'scenery';
+	door {
+		nam = 'dark_door';
+		dsc = function(s)
+			if s:has'locked' then
+				p [[Здесь есть дверь, из-за которой доносится жалобное мяуканье.]];
+			else
+				p [[Здесь есть взломанная дверь.]]
+			end
+		end;
+		with_key = 'real_key';
+		door_to = function(s)
+			if here() ^ 'dark3' then
+				return 'dark4'
+			else
+				return 'dark3'
+			end
+		end;
+		description = function(s)
+			if s:hasnt'locked' then
+				p [[Тебе повезло, дверной косяк прогнил и замок просто выломал гнездо для язычка.]]
+			else
+				p [[Дверь не выглядит надёжной.]]
+			end
+		end;
+		['before_Attack,Push'] = function(s)
+			if s:once() then
+				p [[Ты с силой навалился на дверь. Раздался треск, посыпались щепки и дверь открылась внутрь помещения.]]
+				s:attr'~locked,open'
+			else
+				p [[Дверь уже незаперта.]]
+			end
+		end;
+	}:attr"openable,lockable,locked":disable();
+}
 
 obj {
 	-"подвал";
@@ -1021,6 +1440,14 @@ obj {
 	with_key = 'wire';
 	found_in = 'houses';
 	['before_Enter,Climb'] = function(s)
+		if s:hasnt'open' then
+			if s:has'locked' then
+				p [[Подвал заперт на замок.]]
+			else
+				p [[Подвал закрыт.]]
+			end
+			return
+		end
 		walk 'dark';
 	end;
 	description = function(s)
@@ -1045,7 +1472,7 @@ obj {
 		p [[У тебя это {$fmt em|получилось}!]];
 		s:attr'open'
 	end;
-}:attr 'scenery,openable,locked,lockable': with{
+}:attr 'scenery,openable,locked,lockable,enterable': with{
 	obj {
 		-"замок";
 		nam = '#guard';
