@@ -107,9 +107,7 @@ room {
 	before_Default = "Тебе пора просыпаться.";
 	before_Wake = function() move(pl,  'bed') end;
 }
-obj {
-	nam = 'bow2';
-}
+
 obj {
 	nam = 'arrow';
 	-"стрела|рейка";
@@ -648,7 +646,7 @@ obj {
 		if s.short then
 			pr (-"кусок удочки,кусок|")
 		end
-		pr (-"удочка")
+		pr (-"удочка|бамбук|")
 		if s.short then
 			pr (-"|удилище|заготовка|палка")
 		end
@@ -660,7 +658,7 @@ obj {
 			p [[Это отличная заготовка для лука!]];
 			return
 		end
-		p [[Старая удочка из гибкого и крепкого бамбука. Здорово гнётся!]];
+		p [[Старая удочка из гибкого и крепкого бамбука. Длина около двух с половиной метров. Здорово гнётся!]];
 	end;
 	found_in = 'junk';
 	after_CutSaw = function(s)
@@ -900,10 +898,60 @@ obj {
 }:attr'animate'
 
 obj {
+	nam = 'bow2';
+	-"лук";
+	-- TODO
+}
+
+function mp:Fire(w)
+	if not have 'bow2' then
+		p [[Но тебе не из чего стрелять.]]
+		return
+	end
+	if not have 'arrow' then
+		p [[У тебя нет стрел.]]
+		return
+	end
+	return false
+end
+
+function mp:after_Fire(w)
+	p ([[Ты выстрелил из лука в ]], w:noun'вн', ".")
+	if mp:animate(w) then
+		p (w:It'дт'," это не понравилось.")
+	else
+		p ("Стрела отскочила и упала под ноги.");
+	end
+	drop 'arrow'
+end
+
+Verb {
+	"стреля/ть,выстрел/ить,стрельн/уть";
+	"в {noun}/вн,scene : Fire";
+}
+
+obj {
 	nam = 'rope';
 	-"верёвка,тетива";
 	description = "Тонкая, но крепкая капроновая верёвка.";
 	['before_Cut,CutSaw,Tear'] = "Длина верёвки тебя устраивает.";
+	before_Tie = function(s, wh)
+		if wh ^ 'bow' then
+			if wh.short then
+				p [[Ты привязал конец верёвки к бамбуку, согнул его и привзял
+второй. Получился отличный лук!]]
+				if not have 'arrow' then
+					p [[Только стрелы нет. В доме где-то должна быть одна от старого
+лука.]]
+				end
+				replace(wh, 'bow2')
+			else
+				p [[Ты пытаешься сделать себе удочку? Зачем она тебе?]]
+			end
+		else
+			return false
+		end
+	end;
 }
 
 obj {
