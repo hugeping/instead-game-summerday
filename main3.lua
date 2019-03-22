@@ -7,7 +7,8 @@ fmt.dash = true
 fmt.quotes = true
 
 loadmod 'mp-ru'
-pl.description = [[Тебя зовут Серёжа и тебе 8 лет.]];
+pl.description = [[Тебя зовут Серёжа и тебе 8 лет. Это лето ты проводишь
+в небольшом городке с бабушкой и дедушкой.]];
 
 Verb {
 	"просыпаться,просыпайся";
@@ -879,6 +880,13 @@ obj {
 		end
 		p [[-- Он залез в окно, а вылезти не может. Только всё время пищит.]];
 	end;
+	['life_Give,Show'] = function(s, w)
+		if w ^ 'bow2' then
+			p [[-- Ух ты, у тебя новый лук? Можно я проверю его на прочность?^-- Нет!]];
+		else
+			return false
+		end;
+	end;
 	description = [[Руслан носит толстые очки. Он увлекается шахматами.]];
 	['before_Kiss,Touch,Taste,Smell'] = "Ну уж нет.";
 }:attr'animate'
@@ -900,7 +908,11 @@ obj {
 obj {
 	nam = 'bow2';
 	-"лук";
-	-- TODO
+	description = [[Отличный получился лук, лучше старого!
+Теперь ты можешь стрелять.]];
+	after_Give = function(s, w)
+		p [[Ты не хочешь расставаться со своим луком.]]
+	end;
 }
 
 function mp:Fire(w)
