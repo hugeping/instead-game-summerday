@@ -285,7 +285,7 @@ Furniture {
 	found = false;
 	description = [[Повидавший многое на своём веку диван стоит у стены напротив телевизора. Его пружины совсем ослабли, но он стал от этого ещё мягче. В щели между обивкой и ручками постоянно проваливаются разные предметы.]];
 	found_in = 'livingroom';
-	before_Search = function(s)
+	['before_Search,Consult'] = function(s)
 		if s.found then
 			p [[Больше ничего интересного не находится.]]
 			return
