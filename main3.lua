@@ -1583,6 +1583,8 @@ room {
 			DaemonStart 'rat'
 			take 'bow2'
 			take 'arrow'
+			_'arrow'.fire = true
+			_'arrow'.matches = true
 		end
 	end;
 	after_Fire = function(s, w)
