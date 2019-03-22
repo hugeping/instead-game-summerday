@@ -1305,6 +1305,13 @@ obj {
 			p [[Ящик уже подвинут к окну.]]
 		end
 	end;
+	before_Take = function(s)
+		if seen 'rat' then
+			p [[Крыса не дает тебе подойти к ящику.]];
+			return
+		end
+		p [[Тяжеленный!]];
+	end;
 	['before_Exam,Listen,Fire'] = function() return false end;
 	description = [[Деревянный ящик зелёного цвета.]];
 	before_Default = function(s)
