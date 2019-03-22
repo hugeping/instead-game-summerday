@@ -107,12 +107,34 @@ room {
 	before_Default = "Тебе пора просыпаться.";
 	before_Wake = function() move(pl,  'bed') end;
 }
+obj {
+	nam = 'bow2';
+}
+obj {
+	nam = 'arrow';
+	-"стрела|рейка";
+	description = function(s)
+		p [[Стрела из деревянной рейки, которую ты смастерил для своего лука.]]
+		if not have 'bow2' then
+			p [[Жаль только что лук сломался,
+когда Руслан проверял его на прочность.]];
+		end
+	end;
+}
 
 obj {
 	-"кровать";
 	nam = 'bed';
 	found_in = 'bedroom';
 	description = [[Кровать кажется тебе огромной.]];
+	before_LookUnder = function(s)
+		if s:once() then
+			p [[Под кроватью ты нашёл свою старую стрелу от лука.]]
+			take 'arrow'
+		else
+			return false
+		end
+	end;
 }:attr 'scenery,supporter,enterable'
 
 obj {
