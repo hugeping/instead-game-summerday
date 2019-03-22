@@ -712,6 +712,40 @@ obj {
 	["цветы/вн"] = "цветы";
 }
 
+function mp:Burn(w, wh)
+	if mp:check_touch() then
+		return
+	end
+	if wh and mp:check_held(wh) then
+		return
+	end
+	if not wh and not have 'matches' then
+		p [[Чем поджечь?]]
+		return
+	end
+	if not wh or wh == _'match' or wh == _'matches' then
+		return false
+	end
+	p (mp.msg.Burn.BURN2)
+end
+
+function mp:after_Burn(w, wh)
+	p (mp.msg.Burn.BURN)
+end
+
+obj {
+	-"охотничьи спички,спички";
+	nam = 'matches';
+	before_Exam = [[Мечта любого мальчишки. Горят в любых условиях.]];
+}: with {
+	obj {
+		nam = 'match';
+		-"спичка";
+		before_Default = [[Теперь ты можешь что-нибудь поджечь.]];
+		before_Exam = [[Мечта любого мальчишки. Горят в любых условиях.]];
+	}
+}
+
 obj {
 	nam = 'roma';
 	-"Рома|мальчик|парень";
@@ -760,6 +794,7 @@ obj {
 			pn [[-- Нет, и не проси.]];
 			pn [[-- Мне чтобы Мурзика из подвала достать. А охотничьи спички горят долго...]]
 			pn [[... -- Ладно, держи. Только много не трать!]]
+			take 'matches'
 		else
 			pn [[-- Спортом занимаешься? Здорово!]]
 			pn [[-- Да, это непросто...]];
