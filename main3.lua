@@ -945,6 +945,10 @@ obj {
 	-"Света|девочка";
 	nam = 'girl';
 	talk_to = function(s)
+		if visited 'goodend1' then
+			walk 'happyend'
+			return
+		end
 		if _'underground':hasnt'locked' then
 			p [[-- Какой ты молодец! Ты спасёшь Мурзика? Правда?]]
 			return
@@ -1153,6 +1157,23 @@ room {
 			s:daemonStop()
 		end
 	end;
+	onexit = function(s, t)
+		if t ^ 'houses' and visited 'goodend1' then
+			if _'arrow'.fire then
+				if have 'arrow' then
+					p [[Стрела, наконец, погасла.]]
+				end
+				_'arrow'.matches = false
+				_'arrow'.fire = false
+			end
+			if s:once 'final' then
+				remove 'boys'
+				remove 'ruslan'
+				remove 'max'
+				place ('cat', t)
+			end
+		end
+	end;
 	Smell = [[Здесь воняет.]];
 }:attr '~light';
 
@@ -1186,6 +1207,18 @@ obj {
 	-"окно|окна";
 	['before_Enter,Climb'] = "Слишком узко даже для тебя.";
 	description = "Сквозь узкие прорези окон сюда проникает свет с улицы. Ты ему очень рад.";
+	['before_Receive,ThrownAt'] = function(s, w)
+		if not pl:where() ^ 'box' or not _'box':has'moved' then
+			p [[Ты не достаёшь до окна.]]
+			return
+		end
+		if not w ^ 'cat' then
+			p [[Зачем это выбрасывать на улицу?]]
+			return
+		end
+		p [[Ты протянул руки и просунул котёнка сквозь узкое окно. Он, радостно мяукнув, скрылся из виду.]]
+		remove(w)
+	end;
 	found_in = { 'dark_n', 'dark_w', 'dark3', 'dark4' };
 }:attr'scenery';
 
@@ -1195,6 +1228,23 @@ obj {
 	init_dsc = function(s)
 		p [[В дальнем углу помещения стоит деревянный ящик.]];
 		mp:content(s)
+	end;
+	dsc = [[Под окном стоит ящик.]];
+	['before_Push,Transfer'] = function(s)
+		if seen 'rat' then
+			p [[Крыса не дает тебе подойти к ящику.]];
+			return
+		end
+		if pl:where() == s then
+			p [[Но ты же стоишь на нём!]]
+			return
+		end
+		if s:once() then
+			p [[Ты подвинул ящик к окну.]]
+			s:attr'moved'
+		else
+			p [[Ящик уже подвинут к окну.]]
+		end
 	end;
 	['before_Exam,Listen,Fire'] = function() return false end;
 	description = [[Деревянный ящик зелёного цвета.]];
@@ -1206,11 +1256,11 @@ obj {
 		end
 	end;
 	obj = { 'cat' };
-}:attr 'static,supporter';
+}:attr 'static,supporter,enterable';
 
 obj {
 	nam = 'cat';
-	-"котёнок|Мурзик";
+	-"котёнок|Мурзик|кот";
 	['before_Exam,Listen,Fire'] = function() return false end;
 	description = function(s)
 		if seen 'rat' then
@@ -1233,6 +1283,7 @@ obj {
 		end
 		p [[Ты забрал Мурзика.]]
 		take(s)
+		s:attr 'moved'
 	end;
 	before_Default = function(s)
 		if seen 'rat' then
@@ -1256,10 +1307,27 @@ obj {
 obj {
 	nam = 'rat';
 	-"крыса|тварь";
-	description = [[Ты никогда не видел таких огромных крыс. К счастью, она не обращает на тебя внимания.]];
+	description = function(s)
+		p [[Ты никогда не видел таких огромных крыс.]]
+		if not visited 'goodend1' then
+			p [[К счастью, она не обращает на тебя внимания.]];
+		end
+	end;
 	['before_Exam,Listen,Fire'] = function() return false; end;
 	before_Default = [[Эта тварь опасная. Лучше с голыми руками к ней не приближаться.]];
 	init_dsc = [[Прямо под ящиком ты видишь огромную крысу, которая встала на задние лапы, пытаясь достать до Мурзика.]];
+	daemon = function(s)
+		if not here() ^ 'dark3' then
+			return
+		end
+		if have 'bow2' and have 'arrow' and _'arrow'.fire then
+			p [[Ты видишь в конце коридора крысу. Она держится на приличном расстоянии, но ты видишь, как в её красных глазках пылает огонь твоей стрелы.]]
+			p [[Она боится огня, но, все-таки, продолжает следить за тобой.]]
+		else
+			s:daemonStop()
+			walk 'badend5'
+		end
+	end;
 }:attr 'animate';
 
 global 'target' (false)
@@ -1281,6 +1349,58 @@ cutscene {
 }
 
 cutscene {
+	nam = 'badend2';
+	title = "конец";
+	text = [[Ты вышел в коридор, держа Мурзика на руках. Ты успел сделать
+всего несколько шагов, когда из конца коридора на тебя бросилась жирная тварь.^^
+Твои руки были заняты, чтобы успеть что-нибудь предпринять.^
+^{$fmt em|Но всё могло закончиться по-другому...}]];
+	next_to = 'dark4';
+}
+
+cutscene {
+	nam = 'badend3';
+	title = "конец";
+	text = [[Ты вышел в коридор и успел сделать
+всего несколько шагов, когда из конца коридора на тебя бросилась жирная тварь.^^
+У тебя не было огненной стрелы, чтобы отпугнуть тварь, поэтому ты не мог ничего изменить...^
+^{$fmt em|Но всё могло закончиться по-другому...}]];
+	next_to = 'dark4';
+}
+
+cutscene {
+	nam = 'badend4';
+	title = "конец";
+	text = [[Ты вышел в коридор и успел сделать
+всего несколько шагов, когда из конца коридора на тебя бросилась жирная тварь.^^
+У тебя не было лука, чтобы отпугнуть тварь, поэтому ты не мог ничего изменить...^
+^{$fmt em|Но всё могло закончиться по-другому...}]];
+	next_to = 'dark4';
+}
+
+cutscene {
+	nam = 'badend5';
+	title = "конец";
+	text = [[Как только крыса поняла, что ты безоружен, она бросилась к тебе.
+И ты не мог ничего изменить...^
+^{$fmt em|Но всё могло закончиться по-другому...}]];
+	next_to = 'dark3';
+}
+
+cutscene {
+	nam = 'happyend';
+	title = false;
+	text = {
+		[[-- А где все?^^
+-- Кто? А, эти... Ушли обедать. Серёжка, ты такой молодец!^^
+-- ...^^
+-- Ты знаешь...^^
+... Я должна сказать тебе...]];
+		[[ТЫ -- МОЙ ГЕРОЙ!]];
+	};
+}
+
+cutscene {
 	nam = 'goodend1';
 	title = false;
 	text = [[Ты натягиваешь тетиву лука до упора и посылаешь пылающую стрелу в крысу.^^
@@ -1295,9 +1415,26 @@ room {
 	title = 'Квадратное помещение';
 	out_to = 'dark_door';
 	onexit = function(s, w)
+		if have 'cat' then
+			walk 'badend2'
+			return false
+		end
+		if visited 'goodend1' and (not have 'bow2' or not have 'arrow' or not _'arrow'.fire) then
+			if not have 'bow2' then
+				walk 'badend4'
+			else
+				walk 'badend3'
+			end
+			return false
+		end
 		if _'arrow'.fire and seen 'rat' then
 			p [[Ты не для того пришёл сюда, чтобы просто уйти.]]
 			return false
+		end
+		if visited 'goodend1' then
+			move('rat', 'dark3')
+			_'rat':attr'concealed'
+			DaemonStart 'rat'
 		end
 		return
 	end;
@@ -1370,6 +1507,19 @@ room {
 	-"подвал|коридор";
 	title = 'Помещения';
 	out_to = 'dark_w';
+	onenter = function(s, f)
+		if f ^ 'badend5' then
+			DaemonStart 'rat'
+			take 'bow2'
+			take 'arrow'
+		end
+	end;
+	after_Fire = function(s, w)
+		if w ^ 'rat' then
+			p [[Пока она не нападает, лучше поберечь стрелу.]]
+			return
+		end
+	end;
 	in_to = function(s)
 		if not disabled 'dark_door' then return 'dark_door' end
 		return false
@@ -1511,8 +1661,11 @@ room {
 	['s_to,out_to'] = '#street';
 	before_Listen = function(s, wh)
 		if _'underground':hasnt'locked' or wh == _'underground' then
-			p [[Из глубины подвала ты слышишь жалобный писк котёнка.]];
-			return
+			if not visited 'goodend1' then
+				p [[Из глубины подвала ты слышишь жалобный писк котёнка.]];
+			else
+				return false
+			end
 		end
 		local txt = {
 			[[-- Ему нужно как-то помочь!]];
