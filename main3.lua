@@ -735,6 +735,13 @@ obj {
 		p [[Старая удочка из гибкого и крепкого бамбука. Длина около двух с половиной метров. Здорово гнётся!]];
 	end;
 	found_in = 'junk';
+	before_Cut = function(s, w)
+		if not w and have 'saw' or w == _'saw' then
+			mp:xaction("CutSaw", s)
+			return
+		end
+		p [[Тебе не чем отрезать удочку.]]
+	end;
 	after_CutSaw = function(s)
 		if s.short then
 			p [[Больше пилить не нужно.]]
@@ -908,7 +915,9 @@ obj {
 			p ([[Ты показал ему ]], w:noun 'вн', ".");
 			if w ^ 'matches' then
 				pn()
+				local ofeed = s.feed; s.feed = true
 				s:talk_to()
+				s.feed = ofeed
 				return
 			end
 			p [[^-- Отстань, мелкий!]]
@@ -1125,7 +1134,7 @@ obj {
 				mp:xaction("CutSaw", s)
 				return
 			end
-			return false
+			p [[Тебе не чем отрезать верёвку.]]
 		end;
 		after_CutSaw = function(s)
 			if s:once() then
