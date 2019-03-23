@@ -1,5 +1,5 @@
 --$Name:Один день лета$
---$Version:0.6
+--$Version:0.7
 --$Author:Пётр Косых$
 --$Info:Игра на Инстедоз-6$
 
@@ -1494,7 +1494,8 @@ room {
 Тестирование:^^
 Zlobot^
 Kerber^
-Boris Timofeev^^
+Boris Timofeev^
+goraph^^
 Март -- 2019^^
 Если вам понравилась игра,
 ^заходите на http://instead-games.ru
