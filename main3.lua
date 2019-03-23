@@ -830,6 +830,10 @@ function mp:Burn(w, wh)
 		p [[Чем поджечь?]]
 		return
 	end
+	if w == _'matches' and _'arrow'.matches and have 'arrow' then
+		mp:xaction("Burn", _'arrow')
+		return
+	end
 	if not wh or wh == _'match' or wh == _'matches' then
 		return false
 	end
