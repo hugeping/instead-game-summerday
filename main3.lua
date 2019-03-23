@@ -1679,7 +1679,7 @@ room {
 				p [[Дверь уже незаперта.]]
 			end
 		end;
-	}:attr"openable,lockable,locked":disable();
+	}:attr"static,openable,lockable,locked":disable();
 }
 
 obj {
