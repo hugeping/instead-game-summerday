@@ -1801,3 +1801,10 @@ room {
 		desc = [[Ты можешь пойти к своему дому.]];
 	}
 }
+
+function init()
+--	mp.togglehelp = false
+	mp.autohelp = false
+	mp.autohelp_limit = 8
+	mp.compl_thresh = 1
+end
