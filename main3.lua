@@ -1803,7 +1803,7 @@ room {
 }
 
 function init()
---	mp.togglehelp = false
+	mp.togglehelp = true
 	mp.autohelp = false
 	mp.autohelp_limit = 8
 	mp.compl_thresh = 1
