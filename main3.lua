@@ -795,6 +795,12 @@ room {
 	Smell = [[Пахнет резиной и бензином.]];
 	out_to = '#street';
 	e_to = '#street';
+	onexit = function(s)
+		if have 'bow' and not _'bow'.short then
+			p [[Длина удочки больше двух метров! Ты решил оставить её в сарае.]]
+			drop 'bow'
+		end
+	end;
 }: with {
 	Path {
 		-"улица";
