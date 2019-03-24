@@ -1,5 +1,5 @@
 --$Name:Один день лета$
---$Version:0.9
+--$Version:1.0
 --$Author:Пётр Косых$
 --$Info:Игра на Инстедоз-6$
 
@@ -1006,7 +1006,7 @@ obj {
 	-"Света|девочка";
 	nam = 'girl';
 	talk_to = function(s)
-		if visited 'goodend1' then
+		if escaped and visited 'goodend1' then
 			walk 'happyend'
 			return
 		end
@@ -1235,7 +1235,7 @@ room {
 				_'arrow'.matches = false
 				_'arrow'.fire = false
 			end
-			if s:once 'final' then
+			if escaped and s:once 'final' then
 				remove 'boys'
 				remove 'ruslan'
 				remove 'max'
@@ -1271,7 +1271,7 @@ room {
 	end;
 	Smell = [[Здесь воняет.]];
 }
-
+global ('escaped') (false)
 obj {
 	-"окно|окна";
 	['before_Enter,Climb'] = "Слишком узко даже для тебя.";
@@ -1287,6 +1287,7 @@ obj {
 		end
 		p [[Ты протянул руки и просунул котёнка сквозь узкое окно. Он, радостно мяукнув, скрылся из виду.]]
 		remove(w)
+		escaped = true
 	end;
 	found_in = { 'dark_n', 'dark_w', 'dark3', 'dark4' };
 }:attr'scenery';
