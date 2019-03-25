@@ -603,7 +603,11 @@ obj {
 	description = function(s)
 		p [[В сарае дедушка хранит разный интересный хлам.]]
 		if s:hasnt'open' then
-			p [[Сейчас сарай закрыт.]]
+			if s:has'locked' then
+				p [[Сейчас сарай заперт на ключ.]]
+			else
+				p [[Сейчас сарай закрыт.]]
+			end
 		else
 			p [[Сейчас сарай открыт.]]
 		end
@@ -775,9 +779,11 @@ obj {
 		if disabled'bow' then
 			p [[Ты покопался в хламе и нашёл старую удочку.]];
 			enable'bow'
+			take 'bow'
 		elseif disabled'saw' then
 			p [[Ты покопался в хламе и нашёл лобзик.]];
 			enable'saw'
+			take 'saw'
 		else
 			p [[Вроде больше ничего интересного не находится.]];
 		end
