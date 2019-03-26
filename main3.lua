@@ -4,6 +4,11 @@
 --$Info:Игра на Инстедоз-6$
 
 require "fmt"
+require "theme"
+if theme.name() and theme.name():find(".", 1, true) == 1 then
+	require "autotheme"
+end
+
 fmt.dash = true
 fmt.quotes = true
 
