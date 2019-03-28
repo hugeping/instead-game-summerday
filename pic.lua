@@ -48,7 +48,7 @@ game.pic = function(s)
 			pan_left = not not p:find("left")
 			local w, h = spr:size()
 			local hh = tonumber(theme.get'scr.gfx.h')
-			spr = spr:scale(hh/h)
+			spr = spr:scale(hh / h)
 			w, h = spr:size()
 			spr_pos = 0
 			timer:set(50)
@@ -64,7 +64,18 @@ game.pic = function(s)
 		end
 		return spr_blank
 	else
-		return p
+		if not spr_blank then
+			spr_blank = sprite.new(theme.get'scr.gfx.w', theme.get'scr.gfx.h')
+			spr_blank:fill '#333333'
+			spr = sprite.new(p)
+			local hh = tonumber(theme.get'scr.gfx.h')
+			local w, h = spr:size()
+			local ww, hh = spr_blank:size()
+			spr = spr:scale(hh/h)
+			w, h = spr:size()
+			spr:copy(0, 0, ww, hh, spr_blank, (ww - w)/2, 0)
+		end
+		return spr_blank
 	end
 end
 
