@@ -5,9 +5,15 @@
 
 require "fmt"
 require "theme"
+
+function set_pic()
+end
+
 if theme.name() and theme.name():find(".", 1, true) == 1 then
 	require "autotheme"
+	require "pic"
 end
+
 
 fmt.dash = true
 fmt.quotes = true
@@ -1829,4 +1835,5 @@ function init()
 	else
 		mp.togglehelp = false
 	end
+	pic_set '1-pan'
 end
