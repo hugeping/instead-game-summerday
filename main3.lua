@@ -1823,4 +1823,9 @@ function init()
 	mp.autohelp = false
 	mp.autohelp_limit = 8
 	mp.compl_thresh = 1
+	if theme.name() == '.mobile' or theme.name() == '.mobile2' then
+		mp.togglehelp = true
+	else
+		mp.togglehelp = false
+	end
 end
