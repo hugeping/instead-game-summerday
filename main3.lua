@@ -18,7 +18,7 @@ end
 fmt.dash = true
 fmt.quotes = true
 
-loadmod 'mp-ru'
+require 'parser/mp-ru'
 pl.description = [[Тебя зовут Серёжа и тебе 8 лет. Это лето ты проводишь
 в небольшом городке с бабушкой и дедушкой.]];
 
