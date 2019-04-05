@@ -1,12 +1,12 @@
 --$Name:Один день лета$
---$Version:1.0
+--$Version:1.1
 --$Author:Пётр Косых$
 --$Info:Игра на Инстедоз-6$
 
 require "fmt"
 require "theme"
 
-function set_pic()
+function pic_set()
 end
 
 if theme.name() and theme.name():find(".", 1, true) == 1 then
@@ -1653,7 +1653,9 @@ room {
 		return false
 	end;
 	s_to = 'dark_w';
-	e_to = 'dark_door';
+	e_to = function(s)
+		return s:in_to()
+	end;
 	before_Listen = function(s)
 		if s:once() then
 			p [[Ты прошёлся вдоль коридора прислушиваясь к жалобному мяуканию и нашёл дверь из-за которого оно доносилось.]]
