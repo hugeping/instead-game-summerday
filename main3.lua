@@ -786,7 +786,7 @@ obj {
 			p [[Тут, наверное, много всего интересного, если поискать.]];
 		end
 	end;
-	['before_Search,LookUnder'] = function(s)
+	['before_Search,LookUnder,Consult'] = function(s)
 		if disabled'bow' then
 			p [[Ты покопался в хламе и нашёл старую удочку.]];
 			enable'bow'
