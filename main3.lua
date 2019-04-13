@@ -1317,7 +1317,7 @@ obj {
 		p [[В дальнем углу помещения стоит деревянный ящик.]];
 		mp:content(s)
 	end;
-	dsc = [[Под окном стоит ящик.]];
+	dsc = function(s) p [[Под окном стоит ящик.]]; mp:content(s); end;
 	['before_Push,Transfer'] = function(s)
 		if seen 'rat' then
 			p [[Крыса не дает тебе подойти к ящику.]];
