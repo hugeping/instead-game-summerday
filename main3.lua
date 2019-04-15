@@ -81,7 +81,7 @@ function mp:pre_input(str)
 end
 
 Path = Class {
-	['before_Walk,Enter'] = function(s) walk (s.walk_to) end;
+	['before_Walk,Enter'] = function(s) if mp:check_inside(std.ref(s.walk_to)) then return end; walk(s.walk_to) end;
 	before_Default = function(s)
 		if s.desc then
 			p(s.desc)
@@ -214,7 +214,7 @@ room {
 		if not pl:inside'bed' then
 			return false
 		end
-		if ev == 'Look' or ev == 'Exam' or ev == 'Exit' or ev == 'Walk' or ev == 'GetOff' or ev == 'Sleep' or ev == 'Wake' then
+		if ev == 'Look' or ev == 'Exam' or ev == 'Exit' or ev == 'GetOff' or ev == 'Sleep' or ev == 'Wake' or ev == 'Walk' then
 			return false
 		end
 		p [[Сначала надо слезть с кровати.]]
