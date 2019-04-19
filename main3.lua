@@ -541,7 +541,13 @@ obj {
 	description = [[Бабушка делает пирожки. Это их запах заполняет весь дом.]];
 	before_Kiss = [[-- Осторожно, внучик, мука!]];
 	dsc = [[Ты видишь как бабушка делает пирожки.]];
-	['before_Talk,Say,Ask,Tell'] = function(s)
+	['before_Say,Ask,Tell'] = function(s, w)
+		if w:find("пирож") then
+			return s:before_Talk()
+		end
+		p [[Ты можешь просто {$fmt em|поговорить с бабушкой}.]]
+	end;
+	['before_Talk'] = function(s)
 		if pie_nr == 0 then
 			p [[-- Проголодался, наверное? Держи пирожок!]];
 			pie_nr = pie_nr + 1
