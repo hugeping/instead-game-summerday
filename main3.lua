@@ -528,6 +528,7 @@ end
 obj {
 	nam = 'pie';
 	-"пирожок";
+	description = [[Выглядит аппетитно!]];
 	before_Touch = "Ещё тёплый.";
 	after_Eat = function(s)
 		pie_nr = pie_nr - 1
