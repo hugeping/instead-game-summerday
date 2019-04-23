@@ -1902,11 +1902,18 @@ Verb {
 	"{noun}/вн : Attack"
 }
 
-VerbHint {
+VerbHint (
 	"#Tie",
 	function(s)
-		return have 'wires' or have 'rope'
-	end;
-}
+		return have ('wires') or have ('rope')
+	end
+)
+
+VerbHint (
+	"#Exit",
+	function(s)
+		return here().out_to ~= nil
+	end
+)
 
 game.hint_verbs = { "#Exam", "#Search", "#Drop", "#Walk", "#Take", "#Give", "#Talk", "#Open", "#Close", "#Push", "#Pull", "#Wait", "#Exit", "#Attack2", "#Inv" }
