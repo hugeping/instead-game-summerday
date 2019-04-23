@@ -1,4 +1,4 @@
---$Name:Один день лета$
+--$Name:Один день лета
 --$Version:1.1
 --$Author:Пётр Косых$
 --$Info:Игра на Инстедоз-6$
@@ -1845,7 +1845,9 @@ function init()
 	mp.autohelp_limit = 8
 	mp.compl_thresh = 1
 	if theme.name() == '.mobile' or theme.name() == '.mobile2' then
-		mp.togglehelp = true
+		mp.autohelp = true
+		mp.compl_thresh = 0
+		mp.autohelp_limit = 2000
 	else
 		mp.togglehelp = false
 	end
@@ -1898,6 +1900,13 @@ Verb {
 	"#Attack2",
 	"ломать",
 	"{noun}/вн : Attack"
+}
+
+VerbHint {
+	"#Tie",
+	function(s)
+		return have 'wires' or have 'rope'
+	end;
 }
 
 game.hint_verbs = { "#Exam", "#Search", "#Drop", "#Walk", "#Take", "#Give", "#Talk", "#Open", "#Close", "#Push", "#Pull", "#Wait", "#Exit", "#Attack2", "#Inv" }
