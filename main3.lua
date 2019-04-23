@@ -23,12 +23,14 @@ pl.description = [[Тебя зовут Серёжа и тебе 8 лет. Это
 в небольшом городке с бабушкой и дедушкой.]];
 
 Verb {
-	"просыпаться,просыпайся";
+	"#Wake2";
+	"проснуться,просыпаться,просыпайся";
 	"Wake";
 }
 
 -- уйти к дому
 Verb {
+	"#WalkOut";
 	"уйти,вернуться,вернись,вернусь";
 	"~ к {noun}/дт,scene,enterable: Walk";
 	"~ на|в {noun}/вн,scene,enterable: Walk";
@@ -90,7 +92,7 @@ Path = Class {
 		p ([[Ты можешь пойти в ]], std.ref(s.walk_to):noun('вн'), '.');
 	end;
 	default_Event = 'Walk';
-}:attr'scenery';
+}:attr'scenery,enterable';
 
 Prop = Class {
 	before_Default = function(s, ev)
@@ -119,6 +121,7 @@ room {
 что понял... Это всего лишь сон.^^Тебе пора просыпаться!]];
 	before_Default = "Тебе пора просыпаться.";
 	before_Wake = function() move(pl,  'bed') end;
+	hint_verbs_only = { "#Wake2" };
 }
 
 obj {
@@ -272,6 +275,7 @@ obj {
 }:disable()
 
 Verb {
+	"#Tie2";
 	"примота/ть",
 	"~ {noun}/вн,held к {noun}/дт,held : Tie",
 	"~ к {noun}/дт,held {noun}/вн,held : Tie reverse",
@@ -429,17 +433,15 @@ Furniture {
 }:attr 'supporter';
 
 Verb {
-	"[вы|за]двин/уть",
+	"#Pull2";
+	"[вы|за]двин/уть,выдви/нуть",
 	"{noun}/вн,openable : Pull"
 }
 
 Verb {
+	"#Push2";
 	"задви/нуть",
 	"{noun}/вн,openable : Push"
-}
-Verb {
-	"выдви/нуть",
-	"{noun}/вн,openable : Pull"
 }
 
 obj {
@@ -501,6 +503,7 @@ room {
 }
 
 Verb {
+	"#Walk3";
 	"сходи/ть";
 	"в {noun}/вн,enterable : Walk";
 }
@@ -732,6 +735,7 @@ function mp:after_CutSaw(w, wh)
 end
 
 Verb {
+	"#CutSaw";
 	"[|рас|вы|за|от|с|пере]пили/ть,[|рас|вы|за|от|с|пере]пилю";
 	"{noun}/вн : CutSaw";
 	"{noun}/вн {noun}/тв,held : CutSaw";
@@ -1118,6 +1122,7 @@ function mp:after_Fire(w)
 end
 
 Verb {
+	"#Fire";
 	"стреля/ть,выстрел/ить,стрельн/уть";
 	"в {noun}/вн,scene : Fire";
 }
@@ -1846,3 +1851,53 @@ function init()
 	end
 	pic_set '1-pan'
 end
+
+VerbHint (
+	'#GetOff',
+	function(s)
+		return not pl:where():type'room'
+	end
+)
+
+VerbHint (
+	'#Wear',
+	function(s)
+		return _'clothes':hasnt 'worn' and have 'clothes'
+	end
+)
+
+VerbHint (
+	'#Jump',
+	function(s)
+		return here() ^ 'grandroom'
+	end
+)
+
+VerbHint (
+	'#Fire',
+	function(s)
+		return have 'bow2'
+	end
+)
+
+VerbHint (
+	'#Burn',
+	function(s)
+		return have 'matches'
+	end
+)
+
+VerbHint (
+	'#CutSaw',
+	function(s)
+		return have 'saw'
+	end
+)
+
+Verb {
+	"#Attack2",
+	"ломать",
+	"{noun}/вн : Attack"
+}
+
+game.hint_verbs = { "#Exam", "#Search", "#Drop", "#Walk", "#Take", "#Give", "#Talk", "#Open", "#Close", "#Push", "#Pull", "#Wait", "#Exit", "#Attack2", "#Inv" }
