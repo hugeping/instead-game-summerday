@@ -1845,9 +1845,9 @@ function init()
 	mp.autohelp_limit = 8
 	mp.compl_thresh = 1
 	if theme.name() == '.mobile' or theme.name() == '.mobile2' then
-		mp.autohelp = true
-		mp.compl_thresh = 0
-		mp.autohelp_limit = 2000
+--		mp.autohelp = true
+--		mp.compl_thresh = 0
+--		mp.autohelp_limit = 2000
 	else
 		mp.togglehelp = false
 	end
@@ -1901,6 +1901,18 @@ Verb {
 	"ломать",
 	"{noun}/вн : Attack"
 }
+
+Verb { "#ThrowAt2",
+	"[про|за]сун/уть",
+	"{noun}/вн,held в|во {noun}/вн : Insert",
+}
+
+VerbHint (
+	"#ThrowAt2",
+	function(s)
+		return have 'cat' and here().nam:find('^dark')
+	end
+)
 
 VerbHint (
 	"#Tie",
