@@ -1367,7 +1367,7 @@ obj {
 
 obj {
 	nam = 'cat';
-	-"котёнок|Мурзик|кот";
+	-"котёнок,Мурзик|кот";
 	['before_Exam,Listen,Fire'] = function() return false end;
 	description = function(s)
 		if seen 'rat' then
