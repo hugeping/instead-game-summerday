@@ -1,5 +1,5 @@
 --$Name:Один день лета
---$Version:1.1
+--$Version:1.2
 --$Author:Пётр Косых$
 --$Info:Игра на Инстедоз-6$
 
@@ -271,6 +271,13 @@ obj {
 	nam = 'wires';
 	-"нитки|моток ниток";
 	found_in = 'mirror';
+	before_Tie = function(s, w)
+		if w ^ 'bow' then
+			p [[Из ниток не получится крепкая тетива.]]
+			return
+		end
+		return false
+	end;
 	description = "Моток белых ниток. Незаменимая вещь, когда надо что-нибудь к чему-нибудь привязать.";
 }:disable()
 
@@ -962,6 +969,7 @@ obj {
 			p [[^-- Отстань, мелкий!]]
 		end
 	end;
+	['before_Say,Ask,Tell'] = [[Ты можешь просто {$fmt em|поговорить с Ромой}.]];
 	talk_to = function(s)
 		if not s.feed then
 			pn [[Ты поравнялся с Ромой, бегущим легкой трусцой и спросил:]]
@@ -1171,7 +1179,7 @@ obj {
 			end
 		end;
 		cut = false;
-		before_Take = "У тебя не выходит развязать узлы.";
+		before_Take = "Крепко привязано! У тебя не выходит отвязать верёвку.";
 		before_Receive = "Не стоит этого делать.";
 		['before_Attack,Tear'] = "Крепкая.";
 		before_Cut = function(s, w)
@@ -1929,3 +1937,20 @@ VerbHint (
 )
 
 game.hint_verbs = { "#Exam", "#Search", "#Drop", "#Walk", "#Take", "#Give", "#Talk", "#Open", "#Close", "#Push", "#Pull", "#Wait", "#Exit", "#Attack2", "#Inv" }
+
+function mp:JumpOn(w)
+	if w == me() then
+		p [[Оригинально...]]
+		return
+	end
+	if me():where() ~= w then
+		p ([[Но ты сейчас не на ]], w:noun 'пр', '.')
+		return
+	end
+	mp:xaction("Jump")
+end
+
+VerbExtend {
+	"#Jump";
+	"~ на {noun}/пр,scene : JumpOn"
+}
