@@ -217,7 +217,8 @@ room {
 		if not pl:inside'bed' then
 			return false
 		end
-		if ev == 'Look' or ev == 'Exam' or ev == 'Exit' or ev == 'GetOff' or ev == 'Sleep' or ev == 'Wake' or ev == 'Walk' or ev == 'Jump' then
+		if ev == 'Look' or ev == 'Exam' or ev == 'Exit' or ev == 'GetOff' or ev == 'Sleep' or ev == 'Wake' or ev == 'Walk'
+			or ev == 'Jump' or ev == 'JumpOn' then
 			return false
 		end
 		p [[Сначала надо слезть с кровати.]]
