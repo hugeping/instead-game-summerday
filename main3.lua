@@ -14,6 +14,13 @@ if theme.name() and theme.name():find(".", 1, true) == 1 then
 	require "pic"
 end
 
+function game:before_Tie(s, wh)
+	if not wh then
+		p [[К чему?]]
+		return
+	end
+	return false
+end
 
 fmt.dash = true
 fmt.quotes = true
