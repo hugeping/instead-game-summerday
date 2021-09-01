@@ -4,8 +4,14 @@
 --$Info:Игра на Инстедоз-6$
 
 require "fmt"
+if instead.tiny then
+declare 'theme'({})
+function theme.name()
+	return 'default'
+end
+else
 require "theme"
-
+end
 function pic_set()
 end
 
@@ -1308,6 +1314,7 @@ room {
 		p [[Когда ты зажигал спичку, ты заметил два прохода.]]
 		if have 'compass' or s.n_seen then
 			p [[Они расположены на севере и на западе.]]
+			p [[Выход находится на юге.]];
 			s.n_seen = true
 		else
 			p [[Но без компаса в темноте сложно ориентироваться.]]
